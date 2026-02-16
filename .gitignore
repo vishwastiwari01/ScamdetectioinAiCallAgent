@@ -1,12 +1,57 @@
+# Python
 __pycache__/
-*.pyc
-*.pyo
+*.py[cod]
+*$py.class
+*.so
+.Python
+
+# Virtual Environments
+env/
+venv/
+ENV/
+env.bak/
+venv.bak/
+
+# Database
 *.db
 honeypot.db
+scams.db
+
+# Config files with keys
 honeypot_config.json
 .env
-.venv
-venv/
-*.log
+.env.local
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
 .DS_Store
+Thumbs.db
+
+# Logs
+*.log
+logs/
+
+# Audio files
+*.wav
+*.mp3
+my_voice.wav
+
+# Reports
+honeypot_report_*.json
+
+# Batch files
+*.bat
+
+# Node
 node_modules/
+
+# Distribution
+dist/
+build/
+*.egg-info/
