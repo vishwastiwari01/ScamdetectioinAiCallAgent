@@ -24,7 +24,7 @@ app = FastAPI(title="Agentic Honeypot API - GUVI Hackathon")
 # ============================================================================
 
 # Your API key for authentication (change this!)
-API_KEY = "guvi-hackaton-honeypot-12345"  # Update this!
+API_KEY = "vishwas-tiwari-guvi-honeypot-2026"  # Updated!
 
 # GUVI callback endpoint
 GUVI_CALLBACK_URL = "https://hackathon.guvi.in/api/updateHoneyPotFinalResult"
@@ -118,6 +118,11 @@ class SessionManager:
                       intelligence: Dict, threat_level: int, scam_detected: bool):
         """Update session with new message and intelligence"""
         session = self.sessions[session_id]
+        
+        # CRITICAL: Ensure intelligence is always a dict
+        if not isinstance(intelligence, dict):
+            print(f"⚠️  WARNING: Intelligence is {type(intelligence)}, converting to empty dict")
+            intelligence = {}
         
         # Add message
         session['messages'].append({
@@ -280,7 +285,16 @@ async def handle_message(
             )
         
         # Extract intelligence
-        intelligence = result.get('extracted_intelligence', [])
+        intelligence = result.get('extracted_intelligence', {})
+        
+        # Debug logging
+        print(f"🎯 Extracted Intelligence Type: {type(intelligence)}")
+        print(f"🎯 Extracted Intelligence Content: {intelligence}")
+        
+        # Ensure intelligence is a dictionary
+        if not isinstance(intelligence, dict):
+            print(f"⚠️  Warning: Intelligence is not a dict, converting...")
+            intelligence = {}
         
         # Update session
         session_manager.update_session(
@@ -298,7 +312,7 @@ async def handle_message(
             request.sessionId,
             ai_response,
             "user",  # Our AI agent responds as "user"
-            [],
+            {},  # Empty dict instead of empty list
             threat_level,
             scam_detected
         )
