@@ -115,7 +115,7 @@ class SessionManager:
         return self.sessions[session_id]
     
     def update_session(self, session_id: str, message: str, sender: str, 
-                      intelligence: List[Dict], threat_level: int, scam_detected: bool):
+                      intelligence: Dict, threat_level: int, scam_detected: bool):
         """Update session with new message and intelligence"""
         session = self.sessions[session_id]
         
@@ -126,26 +126,31 @@ class SessionManager:
             'timestamp': int(datetime.now().timestamp() * 1000)
         })
         
-        # Update intelligence
-        for item in intelligence:
-            data_type = item.get('data_type', '')
-            value = item.get('value', '')
+        # Update intelligence - intelligence is a Dict not List
+        if isinstance(intelligence, dict):
+            # Handle UPI IDs
+            if 'upi_ids' in intelligence:
+                for upi in intelligence['upi_ids']:
+                    if upi not in session['intelligence']['upiIds']:
+                        session['intelligence']['upiIds'].append(upi)
             
-            if 'bank' in data_type.lower() or 'account' in data_type.lower():
-                if value not in session['intelligence']['bankAccounts']:
-                    session['intelligence']['bankAccounts'].append(value)
+            # Handle phone numbers
+            if 'phone_numbers' in intelligence:
+                for phone in intelligence['phone_numbers']:
+                    if phone not in session['intelligence']['phoneNumbers']:
+                        session['intelligence']['phoneNumbers'].append(phone)
             
-            elif 'upi' in data_type.lower():
-                if value not in session['intelligence']['upiIds']:
-                    session['intelligence']['upiIds'].append(value)
+            # Handle bank accounts
+            if 'bank_accounts' in intelligence:
+                for acc in intelligence['bank_accounts']:
+                    if acc not in session['intelligence']['bankAccounts']:
+                        session['intelligence']['bankAccounts'].append(acc)
             
-            elif 'url' in data_type.lower() or 'link' in data_type.lower():
-                if value not in session['intelligence']['phishingLinks']:
-                    session['intelligence']['phishingLinks'].append(value)
-            
-            elif 'phone' in data_type.lower():
-                if value not in session['intelligence']['phoneNumbers']:
-                    session['intelligence']['phoneNumbers'].append(value)
+            # Handle phishing links
+            if 'phishing_links' in intelligence:
+                for url in intelligence['phishing_links']:
+                    if url not in session['intelligence']['phishingLinks']:
+                        session['intelligence']['phishingLinks'].append(url)
         
         # Update metadata
         session['scam_detected'] = scam_detected
