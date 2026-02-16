@@ -1,0 +1,1369 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🍯 AI Honeypot - Agentic Anti-Fraud System</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+         :root {
+            --bg-primary: #0a0e1a;
+            --bg-secondary: #0f1420;
+            --bg-card: rgba(20, 26, 41, 0.6);
+            --accent-primary: #ff9500;
+            --accent-secondary: #7c3aed;
+            --text-primary: #ffffff;
+            --text-secondary: #9ca3af;
+            --border-subtle: rgba(255, 255, 255, 0.08);
+            --danger: #ef4444;
+            --success: #10b981;
+        }
+        
+        body {
+            font-family: 'Space Grotesk', -apple-system, system-ui, sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+        /* Animated Background */
+        
+        .animated-bg {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 0;
+            background: radial-gradient(circle at 20% 30%, rgba(255, 149, 0, 0.15) 0%, transparent 50%), radial-gradient(circle at 80% 70%, rgba(124, 58, 237, 0.15) 0%, transparent 50%), linear-gradient(135deg, var(--bg-primary) 0%, var(--bg-secondary) 50%, var(--bg-primary) 100%);
+        }
+        
+        .animated-bg::before {
+            content: '';
+            position: absolute;
+            width: 200%;
+            height: 200%;
+            background: repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(255, 149, 0, 0.03) 2px, rgba(255, 149, 0, 0.03) 4px), repeating-linear-gradient(90deg, transparent, transparent 2px, rgba(124, 58, 237, 0.03) 2px, rgba(124, 58, 237, 0.03) 4px);
+            animation: gridMove 20s linear infinite;
+        }
+        
+        @keyframes gridMove {
+            0% {
+                transform: translate(0, 0);
+            }
+            100% {
+                transform: translate(50px, 50px);
+            }
+        }
+        
+        .container {
+            position: relative;
+            z-index: 1;
+            max-width: 1600px;
+            margin: 0 auto;
+            padding: 32px 24px;
+        }
+        /* Header */
+        
+        .header {
+            text-align: center;
+            margin-bottom: 48px;
+            animation: fadeInDown 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        
+        .logo-section {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 16px;
+            margin-bottom: 16px;
+        }
+        
+        .logo {
+            font-size: 64px;
+            filter: drop-shadow(0 0 20px rgba(255, 149, 0, 0.6));
+            animation: float 3s ease-in-out infinite;
+        }
+        
+        @keyframes float {
+            0%,
+            100% {
+                transform: translateY(0px);
+            }
+            50% {
+                transform: translateY(-10px);
+            }
+        }
+        
+        .title {
+            font-size: clamp(2.5rem, 6vw, 4rem);
+            font-weight: 700;
+            background: linear-gradient(135deg, var(--accent-primary) 0%, var(--accent-secondary) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            letter-spacing: -0.03em;
+            line-height: 1.1;
+        }
+        
+        .subtitle {
+            color: var(--text-secondary);
+            font-size: 1.25rem;
+            margin-top: 12px;
+            font-weight: 400;
+        }
+        
+        @keyframes fadeInDown {
+            from {
+                opacity: 0;
+                transform: translateY(-30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        /* System Status Dashboard */
+        
+        .dashboard {
+            background: var(--bg-card);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--border-subtle);
+            border-radius: 24px;
+            padding: 32px;
+            margin-bottom: 32px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.4);
+            animation: fadeInUp 0.8s cubic-bezier(0.16, 1, 0.3, 1) 0.1s both;
+        }
+        
+        .dashboard-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 32px;
+        }
+        
+        .dashboard-title {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 1.5rem;
+            font-weight: 600;
+        }
+        
+        .status-indicator {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        
+        .status-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: var(--danger);
+            animation: pulse 2s ease-in-out infinite;
+        }
+        
+        .status-dot.online {
+            background: var(--success);
+        }
+        
+        @keyframes pulse {
+            0%,
+            100% {
+                opacity: 1;
+            }
+            50% {
+                opacity: 0.5;
+            }
+        }
+        
+        .refresh-btn {
+            padding: 10px 20px;
+            background: rgba(124, 58, 237, 0.2);
+            border: 1px solid var(--accent-secondary);
+            border-radius: 12px;
+            color: var(--text-primary);
+            font-family: inherit;
+            font-size: 0.9rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .refresh-btn:hover {
+            background: rgba(124, 58, 237, 0.3);
+            transform: translateY(-2px);
+        }
+        
+        .metrics-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+        }
+        
+        .metric-card {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid var(--border-subtle);
+            border-radius: 16px;
+            padding: 24px;
+            text-align: center;
+            transition: all 0.3s;
+        }
+        
+        .metric-card:hover {
+            background: rgba(255, 255, 255, 0.05);
+            border-color: var(--accent-primary);
+            transform: translateY(-4px);
+        }
+        
+        .metric-value {
+            font-size: 3rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            font-family: 'JetBrains Mono', monospace;
+        }
+        
+        .metric-label {
+            color: var(--text-secondary);
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            margin-top: 8px;
+        }
+        
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        /* Mode Tabs */
+        
+        .mode-tabs {
+            display: flex;
+            justify-content: center;
+            gap: 16px;
+            margin-bottom: 32px;
+            animation: fadeInUp 0.8s cubic-bezier(0.16, 1, 0.3, 1) 0.2s both;
+        }
+        
+        .tab-btn {
+            padding: 14px 32px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 2px solid var(--border-subtle);
+            border-radius: 16px;
+            color: var(--text-secondary);
+            font-family: inherit;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .tab-btn.active {
+            background: linear-gradient(135deg, var(--accent-primary) 0%, var(--accent-secondary) 100%);
+            border-color: transparent;
+            color: var(--text-primary);
+            box-shadow: 0 8px 24px rgba(255, 149, 0, 0.3);
+        }
+        
+        .tab-btn:hover:not(.active) {
+            background: rgba(255, 255, 255, 0.08);
+            border-color: var(--accent-primary);
+        }
+        
+        .mode-panel {
+            display: none;
+            animation: fadeIn 0.5s ease-out;
+        }
+        
+        .mode-panel.active {
+            display: block;
+        }
+        
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+            to {
+                opacity: 1;
+            }
+        }
+        /* Text Chat Panel */
+        
+        .chat-panel {
+            display: grid;
+            grid-template-columns: 1fr 400px;
+            gap: 24px;
+            animation: fadeInUp 0.8s cubic-bezier(0.16, 1, 0.3, 1) 0.3s both;
+        }
+        
+        @media (max-width: 1200px) {
+            .chat-panel {
+                grid-template-columns: 1fr;
+            }
+        }
+        
+        .chat-card {
+            background: var(--bg-card);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--border-subtle);
+            border-radius: 24px;
+            padding: 28px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.4);
+        }
+        
+        .card-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 24px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid var(--border-subtle);
+        }
+        
+        .card-title {
+            font-size: 1.4rem;
+            font-weight: 600;
+        }
+        
+        .conversation {
+            height: 500px;
+            overflow-y: auto;
+            padding: 20px;
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 16px;
+            border: 1px solid var(--border-subtle);
+            margin-bottom: 20px;
+        }
+        
+        .conversation::-webkit-scrollbar {
+            width: 8px;
+        }
+        
+        .conversation::-webkit-scrollbar-track {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 4px;
+        }
+        
+        .conversation::-webkit-scrollbar-thumb {
+            background: var(--accent-primary);
+            border-radius: 4px;
+        }
+        
+        .message {
+            margin-bottom: 16px;
+            padding: 14px 18px;
+            border-radius: 16px;
+            max-width: 85%;
+            animation: slideIn 0.3s ease-out;
+        }
+        
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateX(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+        
+        .message.scammer {
+            background: rgba(239, 68, 68, 0.2);
+            border: 1px solid rgba(239, 68, 68, 0.3);
+            margin-right: auto;
+        }
+        
+        .message.honeypot {
+            background: rgba(16, 185, 129, 0.2);
+            border: 1px solid rgba(16, 185, 129, 0.3);
+            margin-left: auto;
+        }
+        
+        .message.system {
+            background: rgba(124, 58, 237, 0.2);
+            border: 1px solid rgba(124, 58, 237, 0.3);
+            margin: 0 auto;
+            text-align: center;
+            font-size: 0.9rem;
+        }
+        
+        .message-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 8px;
+            font-size: 0.85rem;
+        }
+        
+        .message-sender {
+            font-weight: 600;
+        }
+        
+        .message-time {
+            color: var(--text-secondary);
+            font-size: 0.8rem;
+        }
+        
+        .empty-state {
+            text-align: center;
+            padding: 80px 20px;
+            color: var(--text-secondary);
+        }
+        
+        .empty-state h3 {
+            font-size: 1.5rem;
+            margin-bottom: 12px;
+            color: var(--text-primary);
+        }
+        
+        .input-group {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 16px;
+        }
+        
+        input {
+            flex: 1;
+            padding: 14px 18px;
+            background: rgba(0, 0, 0, 0.3);
+            border: 2px solid var(--border-subtle);
+            border-radius: 12px;
+            color: var(--text-primary);
+            font-family: inherit;
+            font-size: 0.95rem;
+            transition: all 0.3s;
+        }
+        
+        input:focus {
+            outline: none;
+            border-color: var(--accent-primary);
+            background: rgba(0, 0, 0, 0.4);
+            box-shadow: 0 0 0 4px rgba(255, 149, 0, 0.1);
+        }
+        
+        button {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 12px;
+            font-family: inherit;
+            font-size: 0.95rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
+            color: var(--text-primary);
+            box-shadow: 0 4px 16px rgba(255, 149, 0, 0.3);
+        }
+        
+        .btn-primary:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 24px rgba(255, 149, 0, 0.4);
+        }
+        
+        .btn-success {
+            background: var(--success);
+            color: var(--text-primary);
+        }
+        
+        .btn-danger {
+            background: var(--danger);
+            color: var(--text-primary);
+        }
+        
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.1);
+            color: var(--text-primary);
+            border: 1px solid var(--border-subtle);
+        }
+        
+        .btn-secondary:hover:not(:disabled) {
+            background: rgba(255, 255, 255, 0.15);
+        }
+        
+        .quick-actions {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        
+        .quick-actions button {
+            font-size: 0.85rem;
+            padding: 10px 18px;
+        }
+        
+        .intelligence-list {
+            max-height: 400px;
+            overflow-y: auto;
+        }
+        
+        .intel-item {
+            padding: 14px;
+            background: rgba(255, 149, 0, 0.1);
+            border: 1px solid rgba(255, 149, 0, 0.2);
+            border-radius: 12px;
+            margin-bottom: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .intel-type {
+            font-weight: 600;
+            color: var(--accent-primary);
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+        
+        .intel-value {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.9rem;
+        }
+        /* Phone UI */
+        
+        .phone-wrapper {
+            display: flex;
+            justify-content: center;
+            padding: 40px 0;
+            animation: fadeInUp 0.8s cubic-bezier(0.16, 1, 0.3, 1) 0.3s both;
+        }
+        
+        .phone-container {
+            width: 400px;
+            height: 850px;
+            background: linear-gradient(135deg, #1a0f2e 0%, #0f0a1e 100%);
+            border-radius: 48px;
+            border: 10px solid #0a0515;
+            box-shadow: 0 40px 100px rgba(0, 0, 0, 0.7), inset 0 0 100px rgba(124, 58, 237, 0.1);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .phone-container::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 150px;
+            height: 30px;
+            background: #000;
+            border-radius: 0 0 20px 20px;
+            z-index: 10;
+        }
+        
+        .call-screen {
+            padding: 50px 30px 30px;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .caller-name {
+            text-align: center;
+            font-size: 32px;
+            font-weight: 700;
+            letter-spacing: 2px;
+            margin-bottom: 8px;
+            background: linear-gradient(135deg, var(--accent-primary), var(--text-primary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        
+        .call-status {
+            text-align: center;
+            font-size: 16px;
+            color: var(--text-secondary);
+            margin-bottom: 8px;
+        }
+        
+        .call-timer {
+            text-align: center;
+            font-size: 14px;
+            color: var(--accent-primary);
+            font-family: 'JetBrains Mono', monospace;
+            margin-bottom: 32px;
+        }
+        
+        .avatar-container {
+            position: relative;
+            width: 180px;
+            height: 180px;
+            margin: 0 auto 32px;
+        }
+        
+        .avatar {
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            border: 4px solid var(--accent-primary);
+            box-shadow: 0 0 30px rgba(255, 149, 0, 0.4);
+        }
+        
+        .waveform {
+            position: absolute;
+            bottom: -15px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 4px;
+        }
+        
+        .wave-bar {
+            width: 4px;
+            background: linear-gradient(180deg, var(--accent-primary), var(--accent-secondary));
+            border-radius: 4px;
+            animation: wave 1.2s ease-in-out infinite;
+        }
+        
+        @keyframes wave {
+            0%,
+            100% {
+                height: 12px;
+            }
+            50% {
+                height: 32px;
+            }
+        }
+        
+        .wave-bar:nth-child(2) {
+            animation-delay: 0.1s;
+        }
+        
+        .wave-bar:nth-child(3) {
+            animation-delay: 0.2s;
+        }
+        
+        .wave-bar:nth-child(4) {
+            animation-delay: 0.3s;
+        }
+        
+        .wave-bar:nth-child(5) {
+            animation-delay: 0.4s;
+        }
+        
+        .phone-conversation {
+            flex: 1;
+            overflow-y: auto;
+            padding: 16px;
+            background: rgba(255, 255, 255, 0.03);
+            border-radius: 20px;
+            margin-bottom: 20px;
+        }
+        
+        .phone-conversation::-webkit-scrollbar {
+            width: 4px;
+        }
+        
+        .phone-conversation::-webkit-scrollbar-thumb {
+            background: var(--accent-primary);
+            border-radius: 2px;
+        }
+        
+        .phone-message {
+            margin-bottom: 12px;
+            padding: 12px 16px;
+            border-radius: 16px;
+            max-width: 90%;
+            font-size: 13px;
+        }
+        
+        .phone-message.scammer {
+            background: rgba(239, 68, 68, 0.2);
+            border-left: 3px solid var(--danger);
+            margin-right: auto;
+        }
+        
+        .phone-message.honeypot {
+            background: rgba(16, 185, 129, 0.2);
+            border-left: 3px solid var(--success);
+            margin-left: auto;
+        }
+        
+        .phone-message-sender {
+            font-weight: 600;
+            font-size: 11px;
+            margin-bottom: 4px;
+            opacity: 0.8;
+        }
+        
+        .call-controls {
+            display: flex;
+            justify-content: space-around;
+            margin-bottom: 24px;
+        }
+        
+        .control-btn {
+            width: 70px;
+            height: 70px;
+            border-radius: 50%;
+            border: none;
+            cursor: pointer;
+            font-size: 28px;
+            transition: all 0.3s;
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
+        }
+        
+        .control-btn.record {
+            background: rgba(255, 255, 255, 0.1);
+        }
+        
+        .control-btn.record.recording {
+            background: var(--danger);
+            animation: pulseBtn 1.5s ease-in-out infinite;
+        }
+        
+        @keyframes pulseBtn {
+            0%,
+            100% {
+                opacity: 1;
+                transform: scale(1);
+            }
+            50% {
+                opacity: 0.8;
+                transform: scale(1.05);
+            }
+        }
+        
+        .control-btn.end {
+            background: var(--danger);
+            width: 80px;
+            height: 80px;
+        }
+        
+        .control-btn:hover {
+            transform: scale(1.1);
+        }
+        
+        .bottom-controls {
+            display: flex;
+            justify-content: space-around;
+        }
+        
+        .bottom-btn {
+            background: none;
+            border: none;
+            color: var(--text-secondary);
+            cursor: pointer;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 6px;
+            font-size: 11px;
+            text-transform: uppercase;
+            transition: color 0.3s;
+        }
+        
+        .bottom-btn:hover {
+            color: var(--text-primary);
+        }
+        
+        .bottom-btn span:first-child {
+            font-size: 24px;
+        }
+        
+        .loader {
+            width: 16px;
+            height: 16px;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-top-color: var(--text-primary);
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+        }
+        
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+        /* Legal Disclaimer */
+        
+        .disclaimer {
+            background: rgba(239, 68, 68, 0.1);
+            border: 2px solid rgba(239, 68, 68, 0.3);
+            border-radius: 20px;
+            padding: 24px;
+            margin-bottom: 32px;
+            animation: fadeInUp 0.8s cubic-bezier(0.16, 1, 0.3, 1) 0.4s both;
+        }
+        
+        .disclaimer h3 {
+            color: var(--danger);
+            margin-bottom: 12px;
+            font-size: 1.2rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .disclaimer p {
+            color: #fca5a5;
+            font-size: 0.95rem;
+            line-height: 1.6;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="animated-bg"></div>
+
+    <div class="container">
+        <!-- Header -->
+        <div class="header">
+            <div class="logo-section">
+                <div class="logo">🍯</div>
+                <h1 class="title">AI Honeypot</h1>
+            </div>
+            <p class="subtitle">Advanced Scam Detection & Intelligence Extraction System</p>
+        </div>
+
+        <!-- System Status Dashboard -->
+        <div class="dashboard">
+            <div class="dashboard-header">
+                <div class="dashboard-title">
+                    📊 System Status
+                </div>
+                <div class="status-indicator">
+                    <div class="status-dot" id="statusDot"></div>
+                    <span id="statusText">Offline</span>
+                    <button class="refresh-btn" onclick="checkHealth()">
+                        🔄 Refresh
+                    </button>
+                </div>
+            </div>
+
+            <div class="metrics-grid">
+                <div class="metric-card">
+                    <div class="metric-value" id="activeCalls">0</div>
+                    <div class="metric-label">Active Calls</div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-value" id="messageCount">0</div>
+                    <div class="metric-label">Messages</div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-value" id="intelCaptured">0</div>
+                    <div class="metric-label">Intel Captured</div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-value" id="threatLevel">0</div>
+                    <div class="metric-label">Threat Level</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Mode Selection -->
+        <div class="mode-tabs">
+            <button class="tab-btn" onclick="switchMode('voice')">
+                🎤 Voice Call
+            </button>
+            <button class="tab-btn active" onclick="switchMode('text')">
+                💬 Text Chat
+            </button>
+        </div>
+
+        <!-- Text Chat Mode -->
+        <div id="textMode" class="mode-panel active">
+            <div class="chat-panel">
+                <div class="chat-card">
+                    <div class="card-header">
+                        <span style="font-size: 1.5rem;">💬</span>
+                        <h3 class="card-title">Text Chat Simulation</h3>
+                    </div>
+
+                    <div class="conversation" id="textConversation">
+                        <div class="empty-state">
+                            <h3>👋 Ready to Engage</h3>
+                            <p>Start a session to begin scam detection</p>
+                        </div>
+                    </div>
+
+                    <div class="input-group">
+                        <input type="text" id="scammerMessage" placeholder="Enter scammer message..." onkeypress="if(event.key === 'Enter') sendMessage()">
+                        <button class="btn-primary" onclick="sendMessage()" id="sendBtn">
+                            📤 Send
+                        </button>
+                    </div>
+
+                    <div class="quick-actions">
+                        <button class="btn-success" onclick="startTextSession()">🚀 Start Session</button>
+                        <button class="btn-secondary" onclick="sendQuickMessage('Your account has KYC issue.')">KYC Scam</button>
+                        <button class="btn-secondary" onclick="sendQuickMessage('You have ₹5000 refund.')">Refund Scam</button>
+                        <button class="btn-danger" onclick="downloadReport()">📥 Download Report</button>
+                    </div>
+                </div>
+
+                <div class="chat-card">
+                    <div class="card-header">
+                        <span style="font-size: 1.5rem;">🎯</span>
+                        <h3 class="card-title">Captured Intelligence</h3>
+                    </div>
+                    <div class="intelligence-list" id="intelligence">
+                        <div class="empty-state">
+                            <p>No intelligence captured yet</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Voice Call Mode -->
+        <div id="voiceMode" class="mode-panel">
+            <div class="phone-wrapper">
+                <div class="phone-container">
+                    <div class="call-screen">
+                        <div class="caller-name">MRS. KAVITA</div>
+                        <div class="call-status" id="voiceCallStatus">Ready to Call</div>
+                        <div class="call-timer" id="voiceTimer">00:00</div>
+
+                        <div class="avatar-container">
+                            <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Ccircle cx='100' cy='100' r='100' fill='%23ff9500'/%3E%3Ctext x='100' y='130' font-family='Arial' font-size='90' font-weight='bold' fill='white' text-anchor='middle'%3EK%3C/text%3E%3C/svg%3E"
+                                alt="Mrs. Kavita" class="avatar">
+                            <div class="waveform" id="waveform" style="display: none;">
+                                <div class="wave-bar"></div>
+                                <div class="wave-bar"></div>
+                                <div class="wave-bar"></div>
+                                <div class="wave-bar"></div>
+                                <div class="wave-bar"></div>
+                            </div>
+                        </div>
+
+                        <div class="phone-conversation" id="voiceConversation">
+                            <div class="empty-state">
+                                <h3 style="font-size: 1.2rem;">📞 Ready</h3>
+                                <p style="font-size: 0.9rem;">Start call to begin</p>
+                            </div>
+                        </div>
+
+                        <div class="call-controls">
+                            <button class="control-btn record" onclick="toggleRecording()" id="recordBtn">🎤</button>
+                            <button class="control-btn end" onclick="endCall()">📞</button>
+                        </div>
+
+                        <div class="bottom-controls">
+                            <button class="bottom-btn" onclick="startVoiceCall()">
+                                <span>📞</span>
+                                <span>Start Call</span>
+                            </button>
+                            <button class="bottom-btn" onclick="switchMode('text')">
+                                <span>💬</span>
+                                <span>Text Mode</span>
+                            </button>
+                            <button class="bottom-btn" onclick="downloadReport()">
+                                <span>📥</span>
+                                <span>Report</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const API_URL = 'http://localhost:8000';
+        let currentCallId = null;
+        let currentMode = 'text';
+        let startTime = null;
+        let timerInterval = null;
+        let messageCount = 0;
+        let maxThreatLevel = 0;
+        let allIntelligence = [];
+
+        // Voice recording
+        let mediaRecorder = null;
+        let audioChunks = [];
+        let isRecording = false;
+
+        // ========== HEALTH CHECK ==========
+        async function checkHealth() {
+            try {
+                const response = await fetch(`${API_URL}/health`);
+                const data = await response.json();
+
+                document.getElementById('statusDot').classList.add('online');
+                document.getElementById('statusText').textContent = 'Online';
+                console.log('Health check:', data);
+            } catch (error) {
+                document.getElementById('statusDot').classList.remove('online');
+                document.getElementById('statusText').textContent = 'Offline';
+                console.error('Health check failed:', error);
+            }
+        }
+
+        // ========== MODE SWITCHING ==========
+        function switchMode(mode) {
+            currentMode = mode;
+
+            document.querySelectorAll('.tab-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            event.target.classList.add('active');
+
+            document.getElementById('textMode').classList.toggle('active', mode === 'text');
+            document.getElementById('voiceMode').classList.toggle('active', mode === 'voice');
+        }
+
+        function startTimer() {
+            if (timerInterval) clearInterval(timerInterval);
+
+            startTime = Date.now();
+            timerInterval = setInterval(() => {
+                const elapsed = Math.floor((Date.now() - startTime) / 1000);
+                const mins = Math.floor(elapsed / 60).toString().padStart(2, '0');
+                const secs = (elapsed % 60).toString().padStart(2, '0');
+
+                if (currentMode === 'voice') {
+                    document.getElementById('voiceTimer').textContent = `${mins}:${secs} 🔊`;
+                }
+            }, 1000);
+        }
+
+        // ========== TEXT MODE ==========
+        async function startTextSession() {
+            const callId = 'text_' + Date.now();
+            currentCallId = callId;
+
+            try {
+                const response = await fetch(`${API_URL}/call/start`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        call_id: callId
+                    })
+                });
+
+                const data = await response.json();
+                const conv = document.getElementById('textConversation');
+                conv.innerHTML = '';
+
+                addTextMessage('System', `📞 Session started: ${data.session_id}`, 'system');
+                addTextMessage('Mrs. Kavita', data.greeting_text, 'honeypot');
+
+                document.getElementById('activeCalls').textContent = '1';
+                startTimer();
+            } catch (error) {
+                alert('Error starting session: ' + error.message);
+            }
+        }
+
+        async function sendMessage() {
+            const message = document.getElementById('scammerMessage').value.trim();
+            if (!message) return;
+            document.getElementById('scammerMessage').value = '';
+            await sendQuickMessage(message);
+        }
+
+        async function sendQuickMessage(message) {
+            if (!currentCallId) await startTextSession();
+
+            const btn = document.getElementById('sendBtn');
+            btn.disabled = true;
+            btn.innerHTML = '<span class="loader"></span> Processing...';
+
+            addTextMessage('Scammer', message, 'scammer');
+            messageCount++;
+            document.getElementById('messageCount').textContent = messageCount;
+
+            try {
+                const response = await fetch(`${API_URL}/call/text`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        call_id: currentCallId,
+                        text: message
+                    })
+                });
+
+                const data = await response.json();
+                addTextMessage('Mrs. Kavita', data.response_text, 'honeypot');
+
+                if (data.threat_level > maxThreatLevel) {
+                    maxThreatLevel = data.threat_level;
+                    document.getElementById('threatLevel').textContent = maxThreatLevel;
+                }
+
+                if (data.intelligence && Object.keys(data.intelligence).length > 0) {
+                    displayIntelligence(data.intelligence);
+                }
+            } catch (error) {
+                addTextMessage('System', `Error: ${error.message}`, 'system');
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = '📤 Send';
+            }
+        }
+
+        function addTextMessage(sender, message, type) {
+            const conv = document.getElementById('textConversation');
+            const time = new Date().toLocaleTimeString();
+
+            const msgDiv = document.createElement('div');
+            msgDiv.className = `message ${type}`;
+            msgDiv.innerHTML = `
+                <div class="message-header">
+                    <span class="message-sender">${sender}</span>
+                    <span class="message-time">${time}</span>
+                </div>
+                <div class="message-content">${message}</div>
+            `;
+
+            conv.appendChild(msgDiv);
+            conv.scrollTop = conv.scrollHeight;
+        }
+
+        // ========== VOICE MODE ==========
+        async function startVoiceCall() {
+            const callId = 'voice_' + Date.now();
+            currentCallId = callId;
+
+            try {
+                const response = await fetch(`${API_URL}/call/start`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        call_id: callId
+                    })
+                });
+
+                const data = await response.json();
+                const conv = document.getElementById('voiceConversation');
+                conv.innerHTML = '';
+
+                addVoiceMessage('honeypot', data.greeting_text, data.greeting_audio_b64);
+                document.getElementById('voiceCallStatus').textContent = 'On Call...';
+                document.getElementById('activeCalls').textContent = '1';
+                startTimer();
+            } catch (error) {
+                alert('Error starting call: ' + error.message);
+            }
+        }
+
+        async function toggleRecording() {
+            if (!currentCallId) {
+                alert('Please start a call first');
+                return;
+            }
+
+            if (!isRecording) {
+                await startRecording();
+            } else {
+                await stopRecording();
+            }
+        }
+
+        async function startRecording() {
+            try {
+                const stream = await navigator.mediaDevices.getUserMedia({
+                    audio: {
+                        echoCancellation: true,
+                        noiseSuppression: true,
+                        autoGainControl: true
+                    }
+                });
+                mediaRecorder = new MediaRecorder(stream, {
+                    mimeType: 'audio/webm'
+                });
+                audioChunks = [];
+
+                mediaRecorder.ondataavailable = (event) => {
+                    if (event.data.size > 0) {
+                        audioChunks.push(event.data);
+                    }
+                };
+
+                mediaRecorder.onstop = async() => {
+                    const audioBlob = new Blob(audioChunks, {
+                        type: 'audio/webm'
+                    });
+                    await processAudio(audioBlob);
+                };
+
+                // Start with timeslice for immediate capture (100ms chunks)
+                mediaRecorder.start(100);
+                isRecording = true;
+
+                document.getElementById('recordBtn').classList.add('recording');
+                document.getElementById('recordBtn').textContent = '⏹️';
+                document.getElementById('waveform').style.display = 'flex';
+
+                console.log('✅ Recording started with immediate capture');
+            } catch (error) {
+                alert('Microphone access denied: ' + error.message);
+            }
+        }
+
+        async function stopRecording() {
+            if (mediaRecorder && isRecording) {
+                mediaRecorder.stop();
+                mediaRecorder.stream.getTracks().forEach(track => track.stop());
+                isRecording = false;
+
+                document.getElementById('recordBtn').classList.remove('recording');
+                document.getElementById('recordBtn').textContent = '🎤';
+                document.getElementById('waveform').style.display = 'none';
+            }
+        }
+
+        async function processAudio(audioBlob) {
+            const formData = new FormData();
+            formData.append('audio', audioBlob, 'recording.wav');
+
+            try {
+                const response = await fetch(`${API_URL}/call/audio?call_id=${currentCallId}`, {
+                    method: 'POST',
+                    body: formData
+                });
+
+                const data = await response.json();
+                addVoiceMessage('scammer', data.transcript);
+                addVoiceMessage('honeypot', data.response_text, data.response_audio_b64);
+
+                if (data.threat_level > maxThreatLevel) {
+                    maxThreatLevel = data.threat_level;
+                    document.getElementById('threatLevel').textContent = maxThreatLevel;
+                }
+
+                if (data.intelligence) displayIntelligence(data.intelligence);
+            } catch (error) {
+                addVoiceMessage('system', `Error: ${error.message}`);
+            }
+        }
+
+        function addVoiceMessage(sender, message, audioB64 = null) {
+            const conv = document.getElementById('voiceConversation');
+            const senderLabel = sender === 'scammer' ? '📞 SCAMMER' :
+                sender === 'honeypot' ? '👵 MRS. KAVITA' : '⚪ SYSTEM';
+
+            const msgDiv = document.createElement('div');
+            msgDiv.className = `phone-message ${sender}`;
+            msgDiv.innerHTML = `
+                <div class="phone-message-sender">${senderLabel}</div>
+                <div>${message}</div>
+            `;
+
+            conv.appendChild(msgDiv);
+            conv.scrollTop = conv.scrollHeight;
+
+            if (audioB64 && sender === 'honeypot') {
+                const audio = new Audio('data:audio/mp3;base64,' + audioB64);
+                audio.play();
+            }
+        }
+
+        function endCall() {
+            if (timerInterval) clearInterval(timerInterval);
+            if (isRecording) stopRecording();
+            document.getElementById('voiceCallStatus').textContent = 'Call Ended';
+            document.getElementById('activeCalls').textContent = '0';
+        }
+
+        // ========== INTELLIGENCE ==========
+        function displayIntelligence(intel) {
+            const intelDiv = document.getElementById('intelligence');
+            if (allIntelligence.length === 0) intelDiv.innerHTML = '';
+
+            const items = [];
+            if (intel.upi_ids) intel.upi_ids.forEach(upi => items.push({
+                type: 'UPI ID',
+                value: upi
+            }));
+            if (intel.phone_numbers) intel.phone_numbers.forEach(phone => items.push({
+                type: 'Phone',
+                value: phone
+            }));
+            if (intel.bank_accounts) intel.bank_accounts.forEach(acc => items.push({
+                type: 'Bank Account',
+                value: acc
+            }));
+            if (intel.phishing_links) intel.phishing_links.forEach(url => items.push({
+                type: 'Phishing URL',
+                value: url
+            }));
+
+            items.forEach(item => {
+                if (!allIntelligence.some(i => i.value === item.value)) {
+                    allIntelligence.push(item);
+                    const div = document.createElement('div');
+                    div.className = 'intel-item';
+                    div.innerHTML = `
+                        <div class="intel-type">${item.type}</div>
+                        <div class="intel-value">${item.value}</div>
+                    `;
+                    intelDiv.appendChild(div);
+
+                    const count = parseInt(document.getElementById('intelCaptured').textContent);
+                    document.getElementById('intelCaptured').textContent = count + 1;
+                }
+            });
+        }
+
+        async function downloadReport() {
+            if (!currentCallId) {
+                alert('No active session');
+                return;
+            }
+
+            try {
+                const response = await fetch(`${API_URL}/call/report/${currentCallId}`);
+                const blob = await response.blob();
+                const url = window.URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `honeypot_report_${currentCallId}.json`;
+                a.click();
+                alert('✅ Report downloaded!');
+            } catch (error) {
+                alert('❌ Report not available yet');
+            }
+        }
+
+        // Initialize
+        window.onload = () => checkHealth();
+    </script>
+</body>
+
+</html>

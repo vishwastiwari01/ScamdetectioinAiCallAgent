@@ -1,0 +1,1301 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🍯 Agentic Ai Honeypot System </title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: linear-gradient(135deg, #0a0e27 0%, #1a1f3a 50%, #0f1729 100%);
+            min-height: 100vh;
+            padding: 20px;
+            color: #e5e7eb;
+            line-height: 1.6;
+        }
+        
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle at 20% 30%, rgba(99, 102, 241, 0.1) 0%, transparent 50%), radial-gradient(circle at 80% 70%, rgba(236, 72, 153, 0.1) 0%, transparent 50%);
+            pointer-events: none;
+            z-index: 0;
+        }
+        
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            position: relative;
+            z-index: 1;
+        }
+        
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+            animation: fadeInDown 0.6s ease-out;
+        }
+        
+        .header h1 {
+            font-size: clamp(2rem, 5vw, 3.5rem);
+            background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 50%, #ec4899 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            font-weight: 800;
+            margin-bottom: 10px;
+            letter-spacing: -0.02em;
+        }
+        
+        .header p {
+            color: #9ca3af;
+            font-size: 1.1rem;
+        }
+        
+        @keyframes fadeInDown {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .mode-selector {
+            display: flex;
+            justify-content: center;
+            gap: 16px;
+            margin-bottom: 30px;
+        }
+        
+        .mode-btn {
+            padding: 12px 32px;
+            border: 2px solid rgba(99, 102, 241, 0.3);
+            border-radius: 12px;
+            background: rgba(99, 102, 241, 0.1);
+            color: #818cf8;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .mode-btn.active {
+            background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+            color: white;
+            box-shadow: 0 4px 16px rgba(99, 102, 241, 0.4);
+        }
+        
+        .mode-btn:hover:not(.active) {
+            border-color: rgba(99, 102, 241, 0.5);
+            background: rgba(99, 102, 241, 0.2);
+        }
+        
+        .mode-panel {
+            display: none;
+            animation: fadeInUp 0.5s ease-out;
+        }
+        
+        .mode-panel.active {
+            display: block;
+        }
+        /* ========== PHONE UI FOR VOICE MODE ========== */
+        
+        .phone-wrapper {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 850px;
+        }
+        
+        .phone-container {
+            width: 400px;
+            height: 850px;
+            background: #1a0f2e;
+            border-radius: 40px;
+            border: 8px solid #0a0515;
+            box-shadow: 0 30px 80px rgba(0, 0, 0, 0.6);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .call-screen {
+            padding: 40px 30px;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .caller-name {
+            text-align: center;
+            margin-bottom: 10px;
+            font-size: 32px;
+            font-weight: 600;
+            letter-spacing: 2px;
+        }
+        
+        .call-status {
+            text-align: center;
+            font-size: 18px;
+            color: #a0a0b0;
+            margin-bottom: 10px;
+        }
+        
+        .call-timer {
+            text-align: center;
+            font-size: 16px;
+            color: #8888aa;
+            margin-bottom: 40px;
+        }
+        
+        .avatar-container {
+            position: relative;
+            width: 200px;
+            height: 200px;
+            margin: 0 auto 40px;
+        }
+        
+        .avatar {
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 4px solid #4a3a6a;
+        }
+        
+        .waveform {
+            position: absolute;
+            bottom: -20px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 250px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 3px;
+        }
+        
+        .wave-bar {
+            width: 3px;
+            background: linear-gradient(180deg, #667eea 0%, #764ba2 100%);
+            border-radius: 3px;
+            animation: wave 1s ease-in-out infinite;
+        }
+        
+        @keyframes wave {
+            0%,
+            100% {
+                height: 10px;
+            }
+            50% {
+                height: 30px;
+            }
+        }
+        
+        .wave-bar:nth-child(2) {
+            animation-delay: 0.1s;
+        }
+        
+        .wave-bar:nth-child(3) {
+            animation-delay: 0.2s;
+        }
+        
+        .wave-bar:nth-child(4) {
+            animation-delay: 0.3s;
+        }
+        
+        .wave-bar:nth-child(5) {
+            animation-delay: 0.4s;
+        }
+        
+        .phone-conversation {
+            flex: 1;
+            overflow-y: auto;
+            margin-bottom: 20px;
+            padding: 15px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 20px;
+        }
+        
+        .phone-conversation::-webkit-scrollbar {
+            width: 4px;
+        }
+        
+        .phone-conversation::-webkit-scrollbar-track {
+            background: rgba(255, 255, 255, 0.05);
+        }
+        
+        .phone-conversation::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 2px;
+        }
+        
+        .phone-message {
+            margin-bottom: 15px;
+            padding: 12px 16px;
+            border-radius: 18px;
+            max-width: 90%;
+            font-size: 14px;
+            line-height: 1.4;
+        }
+        
+        .phone-message.scammer {
+            background: rgba(255, 100, 100, 0.2);
+            border-left: 3px solid #ff6464;
+            margin-right: auto;
+        }
+        
+        .phone-message.honeypot {
+            background: rgba(100, 255, 150, 0.2);
+            border-left: 3px solid #64ffa0;
+            margin-left: auto;
+        }
+        
+        .phone-message-sender {
+            font-weight: 600;
+            margin-bottom: 4px;
+            font-size: 12px;
+            opacity: 0.8;
+        }
+        
+        .call-controls {
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            margin-bottom: 30px;
+        }
+        
+        .control-btn {
+            width: 70px;
+            height: 70px;
+            border-radius: 50%;
+            border: none;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 28px;
+            transition: all 0.3s;
+        }
+        
+        .control-btn.record {
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+        }
+        
+        .control-btn.record.recording {
+            background: #ef4444;
+            animation: pulse 1.5s ease-in-out infinite;
+        }
+        
+        @keyframes pulse {
+            0%,
+            100% {
+                opacity: 1;
+            }
+            50% {
+                opacity: 0.7;
+            }
+        }
+        
+        .control-btn.end {
+            background: #ff3b30;
+            color: white;
+            width: 80px;
+            height: 80px;
+        }
+        
+        .control-btn.speaker {
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+        }
+        
+        .control-btn:hover {
+            transform: scale(1.1);
+        }
+        
+        .bottom-controls {
+            display: flex;
+            justify-content: space-around;
+            padding: 0 20px;
+        }
+        
+        .bottom-btn {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 8px;
+            background: none;
+            border: none;
+            color: #9090b0;
+            cursor: pointer;
+            font-size: 24px;
+            transition: color 0.3s;
+        }
+        
+        .bottom-btn:hover {
+            color: #c0c0d0;
+        }
+        
+        .bottom-btn span {
+            font-size: 11px;
+            text-transform: uppercase;
+        }
+        
+        .phone-metrics {
+            display: flex;
+            justify-content: space-around;
+            padding: 15px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 15px;
+            margin-bottom: 20px;
+        }
+        
+        .phone-metric {
+            text-align: center;
+        }
+        
+        .phone-metric-value {
+            font-size: 24px;
+            font-weight: bold;
+            color: #667eea;
+        }
+        
+        .phone-metric-label {
+            font-size: 10px;
+            color: #8888aa;
+            text-transform: uppercase;
+        }
+        /* ========== TEXT MODE ========== */
+        
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(380px, 1fr));
+            gap: 24px;
+            margin-bottom: 24px;
+        }
+        
+        .card {
+            background: rgba(30, 41, 59, 0.5);
+            backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            padding: 28px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.05);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        
+        .card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 12px 48px rgba(0, 0, 0, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.1);
+            border-color: rgba(99, 102, 241, 0.3);
+        }
+        
+        .card h3 {
+            font-size: 1.4rem;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            color: #f9fafb;
+            font-weight: 600;
+        }
+        
+        .card h3::before {
+            content: '';
+            width: 4px;
+            height: 24px;
+            background: linear-gradient(180deg, #6366f1, #ec4899);
+            border-radius: 4px;
+        }
+        
+        .metrics-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+        
+        .metric-card {
+            background: rgba(30, 41, 59, 0.5);
+            backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 16px;
+            padding: 20px;
+            text-align: center;
+        }
+        
+        .metric-value {
+            font-size: 2rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 8px;
+        }
+        
+        .metric-label {
+            color: #9ca3af;
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+        
+        .conversation {
+            height: 500px;
+            overflow-y: auto;
+            padding: 20px;
+            background: rgba(15, 23, 42, 0.4);
+            border-radius: 16px;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            margin-bottom: 20px;
+        }
+        
+        .conversation::-webkit-scrollbar {
+            width: 8px;
+        }
+        
+        .conversation::-webkit-scrollbar-track {
+            background: rgba(15, 23, 42, 0.3);
+            border-radius: 4px;
+        }
+        
+        .conversation::-webkit-scrollbar-thumb {
+            background: rgba(99, 102, 241, 0.3);
+            border-radius: 4px;
+        }
+        
+        .message {
+            margin-bottom: 16px;
+            padding: 14px 18px;
+            border-radius: 14px;
+            max-width: 80%;
+            animation: slideIn 0.3s ease-out;
+        }
+        
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .message.scammer {
+            background: rgba(239, 68, 68, 0.15);
+            border-left: 3px solid #ef4444;
+            margin-right: auto;
+        }
+        
+        .message.honeypot {
+            background: rgba(34, 197, 94, 0.15);
+            border-left: 3px solid #22c55e;
+            margin-left: auto;
+        }
+        
+        .message.system {
+            background: rgba(99, 102, 241, 0.1);
+            border-left: 3px solid #6366f1;
+            margin: 0 auto;
+            max-width: 90%;
+            text-align: center;
+            font-size: 0.9rem;
+        }
+        
+        .message-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 8px;
+            font-size: 0.85rem;
+        }
+        
+        .message-sender {
+            font-weight: 600;
+            color: #f9fafb;
+        }
+        
+        .message-time {
+            color: #9ca3af;
+            font-size: 0.8rem;
+        }
+        
+        .message-content {
+            color: #e5e7eb;
+            line-height: 1.5;
+        }
+        
+        input,
+        textarea {
+            width: 100%;
+            padding: 14px 18px;
+            background: rgba(15, 23, 42, 0.6);
+            border: 2px solid rgba(99, 102, 241, 0.2);
+            border-radius: 12px;
+            color: #e5e7eb;
+            font-size: 0.95rem;
+            font-family: inherit;
+            transition: all 0.3s ease;
+            margin: 8px 0;
+        }
+        
+        input:focus,
+        textarea:focus {
+            outline: none;
+            border-color: #6366f1;
+            background: rgba(15, 23, 42, 0.8);
+            box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.1);
+        }
+        
+        button {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 12px;
+            font-size: 0.95rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            font-family: inherit;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        button:active {
+            transform: scale(0.96);
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+            color: white;
+            box-shadow: 0 4px 16px rgba(99, 102, 241, 0.4);
+        }
+        
+        .btn-primary:hover {
+            box-shadow: 0 8px 24px rgba(99, 102, 241, 0.5);
+            transform: translateY(-2px);
+        }
+        
+        .btn-success {
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            color: white;
+            box-shadow: 0 4px 16px rgba(16, 185, 129, 0.4);
+        }
+        
+        .btn-danger {
+            background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+            color: white;
+            box-shadow: 0 4px 16px rgba(239, 68, 68, 0.4);
+        }
+        
+        .btn-warning {
+            background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+            color: white;
+            box-shadow: 0 4px 16px rgba(245, 158, 11, 0.4);
+        }
+        
+        button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        
+        .input-group {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 16px;
+        }
+        
+        .input-group input {
+            flex: 1;
+        }
+        
+        .quick-actions {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin: 16px 0;
+        }
+        
+        .quick-actions button {
+            font-size: 0.85rem;
+            padding: 10px 18px;
+        }
+        
+        .intelligence-panel {
+            background: rgba(245, 158, 11, 0.1);
+            border: 1px solid rgba(245, 158, 11, 0.3);
+            border-radius: 12px;
+            padding: 16px;
+            margin-bottom: 16px;
+        }
+        
+        .intelligence-item {
+            padding: 10px;
+            background: rgba(15, 23, 42, 0.4);
+            border-radius: 8px;
+            margin-bottom: 8px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .intelligence-type {
+            font-weight: 600;
+            color: #fbbf24;
+            font-size: 0.85rem;
+            text-transform: uppercase;
+        }
+        
+        .intelligence-value {
+            color: #e5e7eb;
+            font-family: monospace;
+        }
+        
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: #6b7280;
+        }
+        
+        .empty-state h3 {
+            font-size: 1.5rem;
+            margin-bottom: 12px;
+            color: #9ca3af;
+        }
+        
+        .empty-state p {
+            font-size: 1rem;
+        }
+        
+        .loader {
+            width: 16px;
+            height: 16px;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-top-color: white;
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+        }
+        
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🍯 Agentic Ai Honeypot System </h1>
+            <p>Advanced Scam Detection with Psychological Profiling</p>
+        </div>
+
+        <!-- Mode Selector -->
+        <div class="mode-selector">
+            <button class="mode-btn active" onclick="switchMode('text')">💬 Text Mode</button>
+            <button class="mode-btn" onclick="switchMode('voice')">🎤 Voice Mode</button>
+        </div>
+
+        <!-- Metrics (shared - shown only in text mode) -->
+        <div class="metrics-grid" id="textMetrics">
+            <div class="metric-card">
+                <div class="metric-value" id="timeWasted">0s</div>
+                <div class="metric-label">⏱️ Time Wasted</div>
+            </div>
+            <div class="metric-card">
+                <div class="metric-value" id="fatigueScore">0</div>
+                <div class="metric-label">💤 Fatigue Score</div>
+            </div>
+            <div class="metric-card">
+                <div class="metric-value" id="threatLevel">0</div>
+                <div class="metric-label">⚠️ Threat Level</div>
+            </div>
+            <div class="metric-card">
+                <div class="metric-value" id="messageCount">0</div>
+                <div class="metric-label">💬 Messages</div>
+            </div>
+        </div>
+
+        <!-- TEXT MODE -->
+        <div id="textMode" class="mode-panel active">
+            <div class="grid">
+                <div class="card" style="grid-column: 1 / -1;">
+                    <h3>💬 Text Chat Interface</h3>
+
+                    <div class="conversation" id="textConversation">
+                        <div class="empty-state">
+                            <h3>👋 Welcome!</h3>
+                            <p>Click "Start Session" to begin scam detection</p>
+                        </div>
+                    </div>
+
+                    <div class="input-group">
+                        <input type="text" id="scammerMessage" placeholder="Enter scammer message..." onkeypress="if(event.key === 'Enter') sendMessage()">
+                        <button class="btn-primary" onclick="sendMessage()" id="sendBtn">📤 Send</button>
+                    </div>
+
+                    <div class="quick-actions">
+                        <button class="btn-success" onclick="startTextSession()">🚀 Start Session</button>
+                        <button class="btn-warning" onclick="sendQuickMessage('Your SBI account has been blocked. Please share OTP.')">Quick:
+                            Banking</button>
+                        <button class="btn-warning" onclick="sendQuickMessage('Pay ₹5000 to verify your account')">Quick:
+                            Payment</button>
+                        <button class="btn-danger" onclick="downloadReport()">📥 Download Report</button>
+                    </div>
+                </div>
+
+                <!-- Intelligence Panel -->
+                <div class="card" style="grid-column: 1 / -1;">
+                    <h3>🎯 Captured Intelligence</h3>
+                    <div id="intelligence">
+                        <div class="empty-state">
+                            <p>No intelligence captured yet</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- VOICE MODE - PHONE UI -->
+        <div id="voiceMode" class="mode-panel">
+            <div class="phone-wrapper">
+                <div class="phone-container">
+                    <div class="call-screen">
+                        <div class="caller-name">MRS. KAVITA</div>
+                        <div class="call-status" id="voiceCallStatus">Ready to Call</div>
+                        <div class="call-timer" id="voiceTimer">00:00</div>
+
+                        <div class="avatar-container">
+                            <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Ccircle cx='100' cy='100' r='100' fill='%234a3a6a'/%3E%3Ctext x='100' y='120' font-family='Arial' font-size='80' fill='white' text-anchor='middle'%3EK%3C/text%3E%3C/svg%3E"
+                                alt="Mrs. Kavita" class="avatar">
+                            <div class="waveform" id="waveform" style="display: none;">
+                                <div class="wave-bar"></div>
+                                <div class="wave-bar"></div>
+                                <div class="wave-bar"></div>
+                                <div class="wave-bar"></div>
+                                <div class="wave-bar"></div>
+                            </div>
+                        </div>
+
+                        <div class="phone-metrics">
+                            <div class="phone-metric">
+                                <div class="phone-metric-value" id="voiceTimeWasted">0s</div>
+                                <div class="phone-metric-label">Time Wasted</div>
+                            </div>
+                            <div class="phone-metric">
+                                <div class="phone-metric-value" id="voiceFatigue">0</div>
+                                <div class="phone-metric-label">Fatigue</div>
+                            </div>
+                            <div class="phone-metric">
+                                <div class="phone-metric-value" id="voiceThreat">0</div>
+                                <div class="phone-metric-label">Threat</div>
+                            </div>
+                        </div>
+
+                        <div class="phone-conversation" id="voiceConversation">
+                            <div class="empty-state">
+                                <h3 style="font-size: 1.2rem;">📞 Ready</h3>
+                                <p style="font-size: 0.9rem;">Start call to begin</p>
+                            </div>
+                        </div>
+
+                        <div class="call-controls">
+                            <button class="control-btn record" onclick="toggleRecording()" id="recordBtn" title="Record">🎤</button>
+                            <button class="control-btn end" onclick="endCall()" title="End Call">📞</button>
+                            <button class="control-btn speaker" onclick="downloadReport()" title="Download">📥</button>
+                        </div>
+
+                        <div class="bottom-controls">
+                            <button class="bottom-btn" id="startCallBtn" onclick="startVoiceCall()">
+                                <span>📞</span>
+                                <span>Start</span>
+                            </button>
+                            <button class="bottom-btn" onclick="switchMode('text')">
+                                <span>💬</span>
+                                <span>Text</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const API_URL = 'http://localhost:8000';
+        let currentCallId = null;
+        let currentMode = 'text';
+        let startTime = null;
+        let timerInterval = null;
+        let messageCount = 0;
+        let maxThreatLevel = 0;
+        let maxFatigueScore = 0;
+        let allIntelligence = [];
+
+        // Voice recording
+        let mediaRecorder = null;
+        let audioChunks = [];
+        let isRecording = false;
+        let voiceCallActive = false;
+
+        // ========== MODE SWITCHING ==========
+        function switchMode(mode) {
+            currentMode = mode;
+
+            // Update buttons
+            document.querySelectorAll('.mode-btn').forEach(btn => {
+                btn.classList.remove('active');
+                if (btn.textContent.includes(mode === 'text' ? 'Text' : 'Voice')) {
+                    btn.classList.add('active');
+                }
+            });
+
+            // Update panels
+            document.getElementById('textMode').classList.toggle('active', mode === 'text');
+            document.getElementById('voiceMode').classList.toggle('active', mode === 'voice');
+            document.getElementById('textMetrics').style.display = mode === 'text' ? 'grid' : 'none';
+
+            // Reset metrics
+            resetMetrics();
+        }
+
+        function resetMetrics() {
+            messageCount = 0;
+            maxThreatLevel = 0;
+            maxFatigueScore = 0;
+            startTime = null;
+            if (timerInterval) clearInterval(timerInterval);
+
+            document.getElementById('timeWasted').textContent = '0s';
+            document.getElementById('fatigueScore').textContent = '0';
+            document.getElementById('threatLevel').textContent = '0';
+            document.getElementById('messageCount').textContent = '0';
+            document.getElementById('voiceTimeWasted').textContent = '0s';
+            document.getElementById('voiceFatigue').textContent = '0';
+            document.getElementById('voiceThreat').textContent = '0';
+            document.getElementById('intelligence').innerHTML = '<div class="empty-state"><p>No intelligence captured yet</p></div>';
+            allIntelligence = [];
+        }
+
+        function startTimer() {
+            if (timerInterval) clearInterval(timerInterval);
+
+            startTime = Date.now();
+            timerInterval = setInterval(() => {
+                const elapsed = Math.floor((Date.now() - startTime) / 1000);
+                const mins = Math.floor(elapsed / 60).toString().padStart(2, '0');
+                const secs = (elapsed % 60).toString().padStart(2, '0');
+
+                if (currentMode === 'text') {
+                    const display = mins > 0 ? `${parseInt(mins)}m ${parseInt(secs)}s` : `${elapsed}s`;
+                    document.getElementById('timeWasted').textContent = display;
+                } else {
+                    document.getElementById('voiceTimer').textContent = `${mins}:${secs} 🔊`;
+                    document.getElementById('voiceTimeWasted').textContent = `${elapsed}s`;
+                }
+            }, 1000);
+        }
+
+        // ========== TEXT MODE ==========
+        async function startTextSession() {
+            const callId = 'text_' + Date.now();
+            currentCallId = callId;
+
+            try {
+                const response = await fetch(`${API_URL}/call/start`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        call_id: callId
+                    })
+                });
+
+                const data = await response.json();
+
+                const conv = document.getElementById('textConversation');
+                conv.innerHTML = '';
+
+                addTextMessage('System', `📞 Session started: ${data.session_id}`, 'system');
+                addTextMessage('Mrs. Kavita', data.greeting_text, 'honeypot');
+
+                startTimer();
+
+            } catch (error) {
+                alert('Error starting session: ' + error.message);
+            }
+        }
+
+        async function sendMessage() {
+            const message = document.getElementById('scammerMessage').value.trim();
+            if (!message) return;
+
+            document.getElementById('scammerMessage').value = '';
+            await sendQuickMessage(message);
+        }
+
+        async function sendQuickMessage(message) {
+            if (!currentCallId) {
+                await startTextSession();
+            }
+
+            const btn = document.getElementById('sendBtn');
+            const originalHTML = btn.innerHTML;
+            btn.disabled = true;
+            btn.innerHTML = '<span class="loader"></span> Processing...';
+
+            addTextMessage('Scammer', message, 'scammer');
+            messageCount++;
+            document.getElementById('messageCount').textContent = messageCount;
+
+            try {
+                const response = await fetch(`${API_URL}/call/text`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        call_id: currentCallId,
+                        text: message
+                    })
+                });
+
+                const data = await response.json();
+
+                if (data.error) {
+                    addTextMessage('System', `Error: ${data.error}`, 'system');
+                } else {
+                    // NO AUDIO IN TEXT MODE - data.response_audio_b64 should be null
+                    addTextMessage('Mrs. Kavita', data.response_text, 'honeypot');
+                    messageCount++;
+                    document.getElementById('messageCount').textContent = messageCount;
+
+                    // Update metrics
+                    if (data.psychological_fatigue_score > maxFatigueScore) {
+                        maxFatigueScore = data.psychological_fatigue_score;
+                        document.getElementById('fatigueScore').textContent = maxFatigueScore;
+                    }
+
+                    if (data.threat_level > maxThreatLevel) {
+                        maxThreatLevel = data.threat_level;
+                        document.getElementById('threatLevel').textContent = maxThreatLevel;
+                    }
+
+                    // Display intelligence
+                    if (data.intelligence && Object.keys(data.intelligence).length > 0) {
+                        displayIntelligence(data.intelligence);
+                    }
+                }
+
+            } catch (error) {
+                addTextMessage('System', `Error: ${error.message}`, 'system');
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = originalHTML;
+            }
+        }
+
+        function addTextMessage(sender, message, type) {
+            const conv = document.getElementById('textConversation');
+            const time = new Date().toLocaleTimeString();
+
+            const msgDiv = document.createElement('div');
+            msgDiv.className = `message ${type}`;
+
+            msgDiv.innerHTML = `
+                <div class="message-header">
+                    <span class="message-sender">${sender}</span>
+                    <span class="message-time">${time}</span>
+                </div>
+                <div class="message-content">${message}</div>
+            `;
+
+            conv.appendChild(msgDiv);
+            conv.scrollTop = conv.scrollHeight;
+        }
+
+        // ========== VOICE MODE ==========
+        async function startVoiceCall() {
+            const callId = 'voice_' + Date.now();
+            currentCallId = callId;
+            voiceCallActive = true;
+
+            try {
+                const response = await fetch(`${API_URL}/call/start`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        call_id: callId
+                    })
+                });
+
+                const data = await response.json();
+
+                const conv = document.getElementById('voiceConversation');
+                conv.innerHTML = '';
+
+                addVoiceMessage('honeypot', data.greeting_text, data.greeting_audio_b64);
+
+                document.getElementById('voiceCallStatus').textContent = 'On Call...';
+                document.getElementById('startCallBtn').style.opacity = '0.5';
+
+                startTimer();
+
+            } catch (error) {
+                alert('Error starting call: ' + error.message);
+            }
+        }
+
+        async function toggleRecording() {
+            if (!currentCallId) {
+                alert('Please start a call first');
+                return;
+            }
+
+            if (!isRecording) {
+                await startRecording();
+            } else {
+                await stopRecording();
+            }
+        }
+
+        async function startRecording() {
+            try {
+                const stream = await navigator.mediaDevices.getUserMedia({
+                    audio: true
+                });
+                mediaRecorder = new MediaRecorder(stream);
+                audioChunks = [];
+
+                mediaRecorder.ondataavailable = (event) => {
+                    audioChunks.push(event.data);
+                };
+
+                mediaRecorder.onstop = async() => {
+                    const audioBlob = new Blob(audioChunks, {
+                        type: 'audio/wav'
+                    });
+                    await processAudio(audioBlob);
+                };
+
+                mediaRecorder.start();
+                isRecording = true;
+
+                document.getElementById('recordBtn').classList.add('recording');
+                document.getElementById('recordBtn').textContent = '⏹️';
+                document.getElementById('waveform').style.display = 'flex';
+
+            } catch (error) {
+                alert('Microphone access denied: ' + error.message);
+            }
+        }
+
+        async function stopRecording() {
+            if (mediaRecorder && isRecording) {
+                mediaRecorder.stop();
+                mediaRecorder.stream.getTracks().forEach(track => track.stop());
+                isRecording = false;
+
+                document.getElementById('recordBtn').classList.remove('recording');
+                document.getElementById('recordBtn').textContent = '🎤';
+                document.getElementById('waveform').style.display = 'none';
+            }
+        }
+
+        async function processAudio(audioBlob) {
+            const formData = new FormData();
+            formData.append('audio', audioBlob, 'recording.wav');
+
+            try {
+                const response = await fetch(`${API_URL}/call/audio?call_id=${currentCallId}`, {
+                    method: 'POST',
+                    body: formData
+                });
+
+                const data = await response.json();
+
+                if (data.error) {
+                    addVoiceMessage('system', `Error: ${data.error}`);
+                } else {
+                    addVoiceMessage('scammer', data.transcript);
+                    addVoiceMessage('honeypot', data.response_text, data.response_audio_b64);
+
+                    // Update metrics
+                    if (data.psychological_fatigue_score > maxFatigueScore) {
+                        maxFatigueScore = data.psychological_fatigue_score;
+                        document.getElementById('voiceFatigue').textContent = maxFatigueScore;
+                    }
+
+                    if (data.threat_level > maxThreatLevel) {
+                        maxThreatLevel = data.threat_level;
+                        document.getElementById('voiceThreat').textContent = maxThreatLevel;
+                    }
+
+                    // Display intelligence
+                    if (data.intelligence && Object.keys(data.intelligence).length > 0) {
+                        displayIntelligence(data.intelligence);
+                    }
+                }
+
+            } catch (error) {
+                addVoiceMessage('system', `Error: ${error.message}`);
+            }
+        }
+
+        function addVoiceMessage(sender, message, audioB64 = null) {
+            const conv = document.getElementById('voiceConversation');
+
+            const msgDiv = document.createElement('div');
+            msgDiv.className = `phone-message ${sender}`;
+
+            const senderLabel = sender === 'scammer' ? '📞 SCAMMER' :
+                sender === 'honeypot' ? '👵 MRS. KAVITA' : '⚪ SYSTEM';
+
+            msgDiv.innerHTML = `
+                <div class="phone-message-sender">${senderLabel}</div>
+                <div>${message}</div>
+            `;
+
+            conv.appendChild(msgDiv);
+            conv.scrollTop = conv.scrollHeight;
+
+            // Play audio if available (only in voice mode)
+            if (audioB64 && sender === 'honeypot') {
+                const audio = new Audio('data:audio/mp3;base64,' + audioB64);
+                audio.play();
+            }
+        }
+
+        function endCall() {
+            if (timerInterval) clearInterval(timerInterval);
+            if (isRecording) stopRecording();
+
+            if (currentCallId) {
+                document.getElementById('voiceCallStatus').textContent = 'Call Ended';
+                voiceCallActive = false;
+            }
+        }
+
+        // ========== INTELLIGENCE ==========
+        function displayIntelligence(intel) {
+            const intelDiv = document.getElementById('intelligence');
+
+            if (allIntelligence.length === 0) {
+                intelDiv.innerHTML = '';
+            }
+
+            // Convert intelligence object to array format
+            const items = [];
+            if (intel.upi_ids) {
+                intel.upi_ids.forEach(upi => items.push({
+                    data_type: 'UPI ID',
+                    value: upi
+                }));
+            }
+            if (intel.phone_numbers) {
+                intel.phone_numbers.forEach(phone => items.push({
+                    data_type: 'Phone',
+                    value: phone
+                }));
+            }
+            if (intel.bank_accounts) {
+                intel.bank_accounts.forEach(acc => items.push({
+                    data_type: 'Bank Account',
+                    value: acc
+                }));
+            }
+            if (intel.phishing_links) {
+                intel.phishing_links.forEach(url => items.push({
+                    data_type: 'Phishing URL',
+                    value: url
+                }));
+            }
+
+            items.forEach(item => {
+                // Check if already displayed
+                if (!allIntelligence.some(i => i.value === item.value)) {
+                    allIntelligence.push(item);
+
+                    const div = document.createElement('div');
+                    div.className = 'intelligence-item';
+                    div.innerHTML = `
+                        <div class="intelligence-type">${item.data_type}</div>
+                        <div class="intelligence-value">${item.value}</div>
+                    `;
+                    intelDiv.appendChild(div);
+                }
+            });
+        }
+
+        // ========== REPORT DOWNLOAD ==========
+        async function downloadReport() {
+            if (!currentCallId) {
+                alert('No active session');
+                return;
+            }
+
+            try {
+                const response = await fetch(`${API_URL}/call/report/${currentCallId}`);
+                const blob = await response.blob();
+                const url = window.URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `honeypot_report_${currentCallId}.json`;
+                a.click();
+
+                alert('✅ Report downloaded successfully!');
+            } catch (error) {
+                alert('❌ Report not available yet. Send more messages first.');
+            }
+        }
+
+        // ========== HEALTH CHECK ==========
+        async function checkHealth() {
+            try {
+                const response = await fetch(`${API_URL}/health`);
+                const data = await response.json();
+                console.log('Health check:', data);
+            } catch (error) {
+                console.error('Health check failed:', error);
+            }
+        }
+
+        // Check health on load
+        window.onload = () => {
+            checkHealth();
+        };
+    </script>
+</body>
+
+</html>
